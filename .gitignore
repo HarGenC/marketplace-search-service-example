@@ -16,3 +16,6 @@ CLAUDE.md
 
 # macOS
 .DS_Store
+
+# Visual studio code
+.vscode/

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import urllib.parse
 
@@ -16,6 +17,8 @@ class AdServiceAdSource(AdSource):
     async def get(self, ad_id: int) -> AdSnapshot | None:
         url = urllib.parse.urljoin(self._base_url, f"internal/ads/{ad_id}")
         try:
+            logger.info("Пытаюсь постучаться %s", url)
+            await asyncio.sleep(2)
             resp = await self._client.get(url)
         except httpx.HTTPError as exc:
             logger.warning("failed to fetch ad %s: %s", ad_id, exc)
