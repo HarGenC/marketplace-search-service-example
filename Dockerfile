@@ -1,5 +1,8 @@
 FROM python:3.13-slim-bookworm
 
+RUN addgroup --system --gid 1001 appgroup
+RUN adduser --system --uid 1001 --ingroup appgroup appuser
+
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -12,17 +15,26 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -LsSf https://astral.sh/uv/install.sh | sh
+    && curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && mv /root/.local/bin/uv /usr/local/bin/uv
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-install-project --no-dev
+COPY --chown=appuser:appgroup pyproject.toml uv.lock ./
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+RUN uv venv /app/.venv
+RUN uv sync --frozen --python /app/.venv/bin/python
+ENV PATH="/app/.venv/bin:$PATH"
 
 COPY . .
 
-RUN uv sync --frozen --no-dev
+RUN chown -R appuser:appgroup /app
 
-EXPOSE 8003
 
-CMD ["uv", "run", "python", "-m", "bin.api"]
+EXPOSE 8000
+
+USER appuser
+
+CMD ["/entrypoint.sh"]

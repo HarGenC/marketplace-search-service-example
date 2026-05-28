@@ -44,9 +44,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
     )
-    op.create_index(
-        "ix_search_index_ad_id", "search_index", ["ad_id"], unique=True
-    )
+    op.create_index("ix_search_index_ad_id", "search_index", ["ad_id"], unique=True)
     op.create_index(
         "ix_search_index_ts_vector",
         "search_index",

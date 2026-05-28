@@ -1,5 +1,5 @@
 services:
-  postgres:
+  search-postgres:
     image: postgres:17
     environment:
       POSTGRES_USER: postgres
@@ -9,6 +9,13 @@ services:
       - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - marketplace
 
 volumes:
   pgdata:
+
+networks:
+  marketplace:
+    name: marketplace
+    external: true

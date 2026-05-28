@@ -1,0 +1,27 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: Ruff check
+        entry: uv run ruff check
+        args: [--fix, --exit-non-zero-on-fix, src/, bin/]
+        language: system
+        types: [python]
+        
+      - id: ruff-format
+        name: Ruff format
+        entry: uv run ruff format
+        args: [--check, src/, bin/]
+        language: system
+        types: [python]
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        args: [-v, tests/]
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
