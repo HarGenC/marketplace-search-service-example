@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     kafka_consumer_group: str = "search-service"
     ad_service_url: str = "http://ads-service:8000"
     api_host: str = "0.0.0.0"
-    api_port: int = 8000
+    api_port: int = 8003
     log_level: str = "INFO"
 
     @property
