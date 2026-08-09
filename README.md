@@ -16,6 +16,9 @@ Read-side CQRS для маркетплейса. Слушает Kafka-топик 
 ```bash
 uv sync
 
+# Локальная конфигурация: хосты сервисов и порты
+cp .env.example .env
+
 # PostgreSQL
 docker compose up -d
 
@@ -33,13 +36,23 @@ API стартует на `http://localhost:8003`.
 
 ## Переменные окружения
 
-| Переменная                | По умолчанию                                                      | Описание                           |
-|---------------------------|-------------------------------------------------------------------|------------------------------------|
-| `DATABASE_URL`            | `postgresql+asyncpg://postgres:postgres@localhost:5435/search_db` | Строка подключения к PostgreSQL    |
-| `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092`                                                  | Kafka-брокеры                      |
-| `KAFKA_TOPIC_ADS`         | `ads`                                                             | Топик с событиями объявлений       |
-| `KAFKA_CONSUMER_GROUP`    | `search-service`                                                  | consumer group                     |
-| `AD_SERVICE_URL`          | `http://localhost:8002`                                           | Базовый URL Ad Service (internal)  |
+| Переменная                | По умолчанию      | Описание                                          |
+|---------------------------|-------------------|---------------------------------------------------|
+| `POSTGRES_HOST`           | `search-postgres` | Хост PostgreSQL                                   |
+| `POSTGRES_PORT`           | `5432`            | Порт PostgreSQL                                   |
+| `POSTGRES_DATABASE_NAME`  | `search_db`       | Имя базы                                          |
+| `POSTGRES_USERNAME`       | `postgres`        | Пользователь                                      |
+| `POSTGRES_PASSWORD`       | `postgres`        | Пароль                                            |
+| `DATABASE_URL`            | —                 | Готовая строка подключения; перекрывает `POSTGRES_*` |
+| `KAFKA_BOOTSTRAP_SERVERS` | `redpanda:29092`  | Kafka-брокеры                                     |
+| `KAFKA_TOPIC_ADS`         | `ads`             | Топик с событиями объявлений                      |
+| `KAFKA_CONSUMER_GROUP`    | `search-service`  | consumer group                                    |
+| `AD_SERVICE_URL`          | `http://ads-service:8000` | Базовый URL Ad Service (internal)         |
+| `API_HOST`                | `0.0.0.0`         | Адрес, на котором слушает API                     |
+| `API_PORT`                | `8000`            | Порт API                                          |
+
+Значения по умолчанию рассчитаны на запуск в docker-сети `marketplace`. Для локального
+запуска скопируйте `.env.example` в `.env` — см. «Быстрый старт» выше.
 
 ## API
 
