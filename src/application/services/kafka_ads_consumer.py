@@ -4,6 +4,7 @@ import typing
 from aiokafka import AIOKafkaConsumer
 
 from src.application.ports.usecases import IndexAdPort, RemoveAdPort
+from src.trace import trace_context, trace_id_from_kafka_headers
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +22,12 @@ class KafkaAdsConsumer:
 
     async def run(self) -> None:
         async for msg in self._consumer:
-            try:
-                await self._handle(msg.value)
-            except Exception:
-                logger.exception("failed to handle message %s", msg)
-                continue
+            with trace_context(trace_id_from_kafka_headers(msg.headers)):
+                try:
+                    await self._handle(msg.value)
+                except Exception:
+                    logger.exception("failed to handle message %s", msg)
+                    continue
             await self._consumer.commit()
 
     async def _handle(self, value: dict[str, typing.Any]) -> None:
@@ -35,6 +37,8 @@ class KafkaAdsConsumer:
         if not isinstance(ad_id, int):
             logger.warning("skip message without ad_id: %s", value)
             return
+
+        logger.info("handling %s for ad %d", event, ad_id)
 
         if event in ("ad.created", "ad.updated"):
             await self._index_ad.execute(ad_id)
